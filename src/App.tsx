@@ -22,19 +22,19 @@ export default function App() {
   const { root, updateRoot } = useAppContext();
 
   function handleClick() {
-    updateRoot((root) => {
-      console.log("Action clicked");
-      const found = root.get("/folder3/folder1/file1.txt");
-      if (found && found.type === "file") found.content = found.content + "-";
-      return root;
-    });
+    const found = root.get("/folder3/folder1/file1.txt");
+    if (found && found.type === "file") {
+      found.content = found.content + "-";
+      console.log(found.lastModified.toISOString());
+    }
+    updateRoot(root);
   }
 
   return (
     <div className="p-4 flex flex-col gap-4">
       <h1>File System</h1>
 
-      <button type="button" className="w-fit py-2 px-3 bg-neutral-600 rounded-md" onClick={handleClick}>
+      <button type="button" className="w-fit py-2 px-3 bg-neutral-600 rounded-md cursor-pointer" onClick={handleClick}>
         Action
       </button>
 

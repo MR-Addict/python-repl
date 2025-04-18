@@ -1,11 +1,18 @@
 "use client";
 
 import { File, Folder } from "@/lib/node/node";
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 interface AppContextProps {
+  /**
+   * The root folder of the file system.
+   */
   root: Folder;
-  updateRoot: (updater: (prevState: Folder) => Folder | void) => void;
+
+  /**
+   * Make sure to use root as a reference, and then pass it to setRoot.
+   */
+  updateRoot: (root: Folder) => void;
 }
 
 const AppContext = createContext<AppContextProps>({
@@ -34,18 +41,11 @@ export const AppContextProvider = ({ children }: { children: React.ReactNode }) 
     return root;
   });
 
-  function updateRoot(updater: (root: Folder) => Folder | void) {
-    setRoot((prev) => {
-      const copied = new Folder(prev.path, null, prev.children, prev.lastModified);
-      return updater(copied) || copied;
-    });
-  }
-
   return (
     <AppContext.Provider
       value={{
         root,
-        updateRoot
+        updateRoot: (root: Folder) => setRoot(new Folder(root.name, root.children, root.parent, root.lastModified))
       }}
     >
       {children}

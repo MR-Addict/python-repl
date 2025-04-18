@@ -44,6 +44,7 @@ class NodeBase {
 
   /**
    * Getter and setter for the name.
+   *
    * Updates the lastModified date whenever the name is changed.
    */
   get name(): string {
@@ -57,6 +58,7 @@ class NodeBase {
 
   /**
    * Getter and setter for the parent.
+   *
    * Updates the lastModified date whenever the parent is changed.
    */
   get parent(): Folder | null {
@@ -94,6 +96,7 @@ export class File extends NodeBase {
 
   /**
    * Getter and setter for the content.
+   *
    * Updates the lastModified date whenever the content is changed.
    */
   get content(): string {
@@ -114,11 +117,12 @@ export class Folder extends NodeBase {
 
   /**
    * The children of the folder.
+   *
    * This can be a file or a folder.
    */
   children: NodeType[];
 
-  constructor(name: string, parent: Folder | null = null, children: NodeType[] = [], lastModified?: Date) {
+  constructor(name: string, children: NodeType[] = [], parent: Folder | null = null, lastModified?: Date) {
     super(name, parent, lastModified);
     this.children = children;
     children.forEach((c) => (c.parent = this));
