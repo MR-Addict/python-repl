@@ -4,9 +4,3 @@
   color-scheme: dark;
   @apply bg-black text-white;
 }
-
-main {
-  min-height: 100vh;
-  min-height: 100dvh;
-  @apply flex flex-col;
-}

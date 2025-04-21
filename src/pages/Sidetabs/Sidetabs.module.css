@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.wrapper {
+  @apply flex flex-col gap-2 py-2.5 border-r border-r-neutral-700;
+}
+
+.tab {
+  @apply w-full p-2.5 flex flex-row items-center gap-2 cursor-pointer text-neutral-400;
+
+  &:hover {
+    @apply text-neutral-100;
+  }
+}

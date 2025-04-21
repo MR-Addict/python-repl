@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+.wrapper {
+  @apply p-2 flex flex-row items-center justify-between;
+
+  & h1 {
+    @apply text-neutral-400;
+  }
+
+  & > ul {
+    @apply flex flex-row items-center gap-0.5;
+  }
+}
+
+.btn {
+  @apply p-1 rounded-sm cursor-pointer;
+
+  &:hover {
+    @apply bg-neutral-700;
+  }
+}

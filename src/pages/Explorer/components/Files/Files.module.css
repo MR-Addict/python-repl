@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+.wrapper {
+  @apply flex flex-col w-full;
+}
+
+.node {
+  & > button {
+    @apply w-full flex items-center gap-1 px-1.5 pb-0.5;
+
+    &:hover {
+      @apply bg-neutral-700;
+    }
+  }
+
+  & .children {
+    @apply pl-2;
+  }
+}

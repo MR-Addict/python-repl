@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+.node {
+  & > button {
+    padding-left: calc(var(--level) * var(--spacing) * 1.5);
+    @apply border border-transparent;
+    @apply w-full flex items-center gap-1 pr-1.5 pb-0.5 cursor-pointer text-sm;
+
+    &:hover {
+      @apply bg-neutral-700/50;
+    }
+
+    &[data-active="true"] {
+      @apply bg-neutral-700/50;
+    }
+
+    &:focus {
+      @apply bg-blue-600/30 border-blue-600;
+    }
+  }
+
+  &[data-type="folder"] > ul[data-open="false"] {
+    @apply hidden;
+  }
+}

@@ -1,3 +1,5 @@
+import { NodeType } from "./node";
+
 /**
  * Join multiple paths into a single path.
  *
@@ -10,4 +12,13 @@ export function pathJoin(...paths: string[]): string {
     if (acc.endsWith("/")) acc = acc.slice(0, -1);
     return `${acc}/${path}`;
   }, "");
+}
+
+/**
+ *
+ * @param nodes The nodes to sort, it can be an array of NodeType.
+ * @returns The sorted nodes, it will be sorted by type and then by name.
+ */
+export function sortNodes(nodes: NodeType[]) {
+  return nodes.sort((a, b) => b.type.localeCompare(a.type) || a.name.localeCompare(b.name));
 }

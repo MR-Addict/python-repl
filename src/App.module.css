@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+.wrapper {
+  height: 100vh;
+  height: 100dvh;
+  @apply flex flex-col;
+}
+
+.content {
+  @apply flex-1 flex flex-row;
+}
