@@ -5,16 +5,19 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build:
+  pages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - uses: actions/cache@v4
         with:
           path: "**/node_modules"
@@ -27,7 +30,8 @@ jobs:
       - name: Deploy to github pages
         uses: crazy-max/ghaction-github-pages@v4
         with:
-          target_branch: gh-pages
+          jekyll: false
           build_dir: dist
+          target_branch: gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
