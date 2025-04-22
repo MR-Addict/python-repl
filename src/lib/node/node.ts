@@ -134,11 +134,7 @@ export class File extends NodeBase {
    */
   toJSON(): FileJSONType {
     const baseObject = super.toJSON();
-    return {
-      ...baseObject,
-      type: "file" as const,
-      content: this._content
-    };
+    return { ...baseObject, type: "file" as const, content: this._content };
   }
 
   /**
@@ -205,11 +201,7 @@ export class Folder extends NodeBase {
    */
   toJSON(): FolderJSONType {
     const baseObject = super.toJSON();
-    return {
-      ...baseObject,
-      type: "folder" as const,
-      children: this._children.map((child) => child.toJSON())
-    };
+    return { ...baseObject, type: "folder" as const, children: this._children.map((child) => child.toJSON()) };
   }
 
   /**

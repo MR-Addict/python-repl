@@ -31,7 +31,7 @@ export default function Editor() {
         path={file?.path}
         value={file?.content}
         onChange={handleChange}
-        options={{ renderWhitespace: "all" }}
+        options={{ renderWhitespace: "all", tabSize: 2 }}
       />
     </div>
   );
