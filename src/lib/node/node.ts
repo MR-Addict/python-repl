@@ -1,31 +1,51 @@
 import { z } from "zod";
 import { pathJoin } from "./utils";
 
+// =========================================================
+// Type definitions for the JSON representation of the nodes
+// =========================================================
+
+// Base schema
 export const BaseJSONSchema = z.object({
   name: z.string(),
   parent: z.string().nullable(),
-  createdAt: z.date(),
-  lastModified: z.date()
+  renaming: z.boolean(),
+  createdAt: z.string(),
+  lastModified: z.string()
 });
 export type BaseJSONType = z.infer<typeof BaseJSONSchema>;
 
-export const FileJSONSchema = BaseJSONSchema.extend({
-  type: z.literal("file"),
+// File schema
+const FileJSONBaseSchema = z.object({
   content: z.string()
 });
+type FileJSONBaseType = z.infer<typeof FileJSONBaseSchema>;
+export const FileJSONSchema = BaseJSONSchema.merge(FileJSONBaseSchema).extend({ type: z.literal("file") });
 export type FileJSONType = z.infer<typeof FileJSONSchema>;
 
-export type FolderJSONType = {
+// Folder schema
+type FolderJSONBaseType = { children: NodeType[]; expand: boolean };
+export interface FolderJSONType extends BaseJSONType {
   type: "folder";
+  expand: boolean;
   children: (FolderJSONType | FileJSONType)[];
-} & BaseJSONType;
+}
 
 export const FolderJSONSchema = BaseJSONSchema.extend({
   type: z.literal("folder"),
+  expand: z.boolean(),
   children: z.array(z.union([FileJSONSchema, z.lazy((): z.ZodType<FolderJSONType> => FolderJSONSchema)]))
 });
 
 export type NodeType = File | Folder;
+
+// ===============================
+// Class definitions for the nodes
+// ===============================
+
+type BaseProps = Partial<Omit<BaseJSONType, "name">> & { name: string };
+type FileProps = BaseProps & Partial<FileJSONBaseType>;
+type FolderProps = BaseProps & Partial<FolderJSONBaseType>;
 
 class NodeBase {
   /**
@@ -36,25 +56,31 @@ class NodeBase {
   /**
    * Created date of the node.
    */
-  createdAt: Date;
+  createdAt: string;
 
   /**
    * Last modified date of the node.
    */
-  lastModified: Date;
+  lastModified: string;
 
   /**
    * Parent folder of the node.
    */
   private _parent: string | null = null;
 
-  constructor(name: string, parent: string | null = null, createdAt?: Date, lastModified?: Date) {
-    this._name = name;
-    this._parent = parent;
+  /**
+   * Rename flag for the node.
+   */
+  renaming: boolean = false;
 
-    const now = new Date();
-    this.createdAt = createdAt || now;
-    this.lastModified = lastModified || now;
+  constructor(props: BaseProps) {
+    this._name = props.name;
+    this._parent = props.parent ?? null;
+    this.renaming = props.renaming ?? false;
+
+    const now = new Date().toISOString();
+    this.createdAt = props.createdAt ?? now;
+    this.lastModified = props.lastModified ?? now;
   }
 
   /**
@@ -64,6 +90,7 @@ class NodeBase {
     return {
       name: this._name,
       parent: this._parent,
+      renaming: this.renaming,
       createdAt: this.createdAt,
       lastModified: this.lastModified
     };
@@ -87,7 +114,7 @@ class NodeBase {
 
   set name(value: string) {
     this._name = value;
-    this.lastModified = new Date();
+    this.lastModified = new Date().toISOString();
   }
 
   /**
@@ -101,7 +128,7 @@ class NodeBase {
 
   set parent(value: string | null) {
     this._parent = value;
-    this.lastModified = new Date();
+    this.lastModified = new Date().toISOString();
   }
 }
 
@@ -116,17 +143,16 @@ export class File extends NodeBase {
    */
   private _content: string = "";
 
-  constructor(name: string, content: string = "", parent: string | null = null, createdAt?: Date, lastModified?: Date) {
-    super(name, parent, createdAt, lastModified);
-    this.content = content;
+  constructor(props: FileProps) {
+    super(props);
+    this.content = props.content ?? "";
   }
 
   /**
    * Create a file from a JSON representation.
    */
   static createFromJSON(json: FileJSONType): File {
-    const { name, content, parent, createdAt, lastModified } = json;
-    return new File(name, content, parent, createdAt, lastModified);
+    return new File(json);
   }
 
   /**
@@ -134,7 +160,7 @@ export class File extends NodeBase {
    */
   toJSON(): FileJSONType {
     const baseObject = super.toJSON();
-    return { ...baseObject, type: "file" as const, content: this._content };
+    return { ...baseObject, type: "file", content: this._content };
   }
 
   /**
@@ -155,7 +181,7 @@ export class File extends NodeBase {
 
   set content(value: string) {
     this._content = value;
-    this.lastModified = new Date();
+    this.lastModified = new Date().toISOString();
   }
 }
 
@@ -166,30 +192,29 @@ export class Folder extends NodeBase {
   readonly type = "folder";
 
   /**
+   * Expand flag for the folder.
+   */
+  private _expand: boolean = false;
+
+  /**
    * The children of the folder.
    *
    * This can be a file or a folder.
    */
   private _children: NodeType[] = [];
 
-  constructor(
-    name: string,
-    children: NodeType[] = [],
-    parent: string | null = null,
-    createdAt?: Date,
-    lastModified?: Date
-  ) {
-    super(name, parent, createdAt, lastModified);
-    this.add(children);
+  constructor(props: FolderProps) {
+    super(props);
+    this.expand = props.expand ?? false;
+    this.children = props.children ?? [];
   }
 
   /**
    * Create a folder from a JSON representation.
    */
   static createFromJSON(json: FolderJSONType): Folder {
-    const { name, children, parent, createdAt, lastModified } = json;
-    const folder = new Folder(name, [], parent, createdAt, lastModified);
-    folder.children = children.map((child) => {
+    const folder = new Folder({ ...json, children: [] });
+    folder.children = json.children.map((child) => {
       if (child.type === "file") return File.createFromJSON(child);
       return Folder.createFromJSON(child);
     });
@@ -201,7 +226,12 @@ export class Folder extends NodeBase {
    */
   toJSON(): FolderJSONType {
     const baseObject = super.toJSON();
-    return { ...baseObject, type: "folder" as const, children: this._children.map((child) => child.toJSON()) };
+    return {
+      ...baseObject,
+      type: "folder",
+      expand: this.expand,
+      children: this._children.map((child) => child.toJSON())
+    };
   }
 
   /**
@@ -209,6 +239,18 @@ export class Folder extends NodeBase {
    */
   get size(): number {
     return this.children.reduce((acc, child) => acc + (child.type === "file" ? child.size : child.size), 0);
+  }
+
+  /**
+   * Getter and setter for the expand flag.
+   */
+  get expand(): boolean {
+    return this._expand;
+  }
+
+  set expand(value: boolean) {
+    this._expand = value;
+    this.lastModified = new Date().toISOString();
   }
 
   /**
@@ -221,7 +263,7 @@ export class Folder extends NodeBase {
   set children(nodes: NodeType[]) {
     nodes.forEach((c) => (c.parent = pathJoin(this.parent || "", this.path)));
     this._children = nodes;
-    this.lastModified = new Date();
+    this.lastModified = new Date().toISOString();
   }
 
   /**

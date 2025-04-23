@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState } from "react";
 
-import "./loader";
-import { createRoot } from "./loader";
+import "./init";
 import { Folder } from "@/lib/node/node";
+import { createRoot, storeRoot } from "./init";
 import usePersistantState from "@/hooks/usePersistantState";
 
-interface AppContextProps {
+interface NodeContextProps {
   /**
    * The root folder of the file system.
    */
@@ -14,7 +14,7 @@ interface AppContextProps {
   /**
    * Make sure to use root as a reference, and then pass it to setRoot.
    */
-  updateRoot: (root: Folder) => void;
+  updateRoot: (root?: Folder) => void;
 
   /**
    * The currently active file.
@@ -27,31 +27,39 @@ interface AppContextProps {
   setActiveFile: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const AppContext = createContext<AppContextProps>({
-  root: new Folder("/"),
+const NodeContext = createContext<NodeContextProps>({
+  root: new Folder({ name: "/" }),
   updateRoot: () => {},
 
   activeFile: null,
   setActiveFile: () => {}
 });
 
-export const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const NodeContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [root, setRoot] = useState<Folder>(createRoot());
   const [activeFile, setActiveFile] = usePersistantState<string | null>("active-file", null);
 
+  storeRoot(root);
+
+  function updateRoot(newRoot?: Folder) {
+    newRoot = newRoot ?? root;
+    const json = newRoot.toJSON();
+    setRoot(Folder.createFromJSON(json));
+  }
+
   return (
-    <AppContext.Provider
+    <NodeContext.Provider
       value={{
         root,
-        updateRoot: (root: Folder) => setRoot(new Folder(root.name, root.children, root.parent, root.lastModified)),
+        updateRoot,
 
         activeFile,
         setActiveFile
       }}
     >
       {children}
-    </AppContext.Provider>
+    </NodeContext.Provider>
   );
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useNodeContext = () => useContext(NodeContext);

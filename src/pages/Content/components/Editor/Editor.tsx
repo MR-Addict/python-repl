@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import MonacoEditor from "@monaco-editor/react";
 
-import { useAppContext } from "@/contexts/App";
 import mapLanguage from "@/lib/monaco/mapLanguage";
+import { useNodeContext } from "@/contexts/Node/Node";
 
 export default function Editor() {
-  const { root, activeFile, updateRoot } = useAppContext();
+  const { root, activeFile, updateRoot } = useNodeContext();
 
   const file = useMemo(() => {
     if (!activeFile) return null;
@@ -17,7 +17,7 @@ export default function Editor() {
   function handleChange(value: string | undefined) {
     if (value === undefined || !file) return;
     file.content = value;
-    updateRoot(root);
+    updateRoot();
   }
 
   if (!file) return null;

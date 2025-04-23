@@ -2,6 +2,10 @@
 
 .wrapper {
   @apply flex flex-col w-full;
+
+  &.hide {
+    @apply hidden;
+  }
 }
 
 .node {

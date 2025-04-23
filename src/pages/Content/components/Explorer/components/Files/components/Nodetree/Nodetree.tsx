@@ -1,13 +1,11 @@
-import { useState } from "react";
-
 import style from "./Nodetree.module.css";
 import { sortNodes } from "@/lib/node/utils";
-import { useAppContext } from "@/contexts/App";
+import { useNodeContext } from "@/contexts/Node/Node";
 import { File, Folder, NodeType } from "@/lib/node/node";
 import { AiOutlineFileText, AiOutlineFolder, AiOutlineFolderOpen } from "react-icons/ai";
 
 function FileNode({ node, level }: { node: File; level?: number }) {
-  const { activeFile, setActiveFile } = useAppContext();
+  const { activeFile, setActiveFile } = useNodeContext();
 
   const handleClick = () => {
     setActiveFile(node.path);
@@ -26,7 +24,12 @@ function FileNode({ node, level }: { node: File; level?: number }) {
 }
 
 function FolderNode({ node, level }: { node: Folder; level?: number }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const { updateRoot } = useNodeContext();
+
+  function handleExpand() {
+    node.expand = !node.expand;
+    updateRoot();
+  }
 
   return (
     <li
@@ -35,12 +38,12 @@ function FolderNode({ node, level }: { node: Folder; level?: number }) {
       className={style.node}
       style={{ "--level": level } as React.CSSProperties}
     >
-      <button type="button" onClick={() => setIsOpen((prev) => !prev)}>
-        <span>{isOpen ? <AiOutlineFolderOpen /> : <AiOutlineFolder />}</span>
+      <button type="button" onClick={handleExpand}>
+        <span>{node.expand ? <AiOutlineFolderOpen /> : <AiOutlineFolder />}</span>
         <span>{node.name}</span>
       </button>
 
-      <ul data-open={isOpen}>
+      <ul data-expand={node.expand}>
         {sortNodes(node.children).map((child) => (
           <Node key={child.name} node={child} level={(level ?? 0) + 1} />
         ))}
@@ -55,7 +58,7 @@ function Node({ node, level }: { node: NodeType; level?: number }) {
 }
 
 export default function Nodetree() {
-  const { root } = useAppContext();
+  const { root } = useNodeContext();
 
   return (
     <ul>

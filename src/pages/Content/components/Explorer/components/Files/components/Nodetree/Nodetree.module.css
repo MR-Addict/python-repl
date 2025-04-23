@@ -19,7 +19,7 @@
     }
   }
 
-  &[data-type="folder"] > ul[data-open="false"] {
+  &[data-type="folder"] > ul[data-expand="false"] {
     @apply hidden;
   }
 }

@@ -1,27 +1,17 @@
-import { Splitter } from "antd";
-
 import style from "./App.module.css";
 
 import Navbar from "@/pages/Navbar/Navbar";
-import Editor from "@/pages/Editor/Editor";
-import Explorer from "@/pages/Explorer/Explorer";
 import Sidetabs from "@/pages/Sidetabs/Sidetabs";
+import Content from "@/pages/Content/Content";
 
 export default function App() {
   return (
     <main className={style.wrapper}>
       <Navbar />
 
-      <div className={style.content}>
+      <div className="flex-1 flex flex-row">
         <Sidetabs />
-        <Splitter>
-          <Splitter.Panel min={200} defaultSize={300} max={600}>
-            <Explorer />
-          </Splitter.Panel>
-          <Splitter.Panel>
-            <Editor />
-          </Splitter.Panel>
-        </Splitter>
+        <Content />
       </div>
     </main>
   );
