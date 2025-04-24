@@ -27,7 +27,7 @@ function createDefaultRoot() {
   const root = new Folder({ name: "/" });
   const file1 = new File({ name: "main.py", content: "print('Hello, World!')" });
   const file2 = new File({ name: "utils.ts", content: "console.log('Hello, World!')" });
-  const file3 = new File({ name: "README.md", content: "# Hello World\n\nThis is a README file." });
+  const file3 = new File({ name: "README.md", content: "# Hello World\n\nThis is a README file.", renaming: true });
   const folder = new Folder({ name: "src" });
   folder.add([file1, file2]);
   root.add([file3, folder]);

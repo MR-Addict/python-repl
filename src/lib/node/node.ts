@@ -270,6 +270,7 @@ export class Folder extends NodeBase {
    * Find a node by its path.
    */
   get(path: string): NodeType | null {
+    if (this.path === path) return this;
     for (const node of this.children) {
       if (node.path === path) return node;
       if (node.type === "folder") {

@@ -22,3 +22,24 @@ export function pathJoin(...paths: string[]): string {
 export function sortNodes(nodes: NodeType[]) {
   return nodes.sort((a, b) => b.type.localeCompare(a.type) || a.name.localeCompare(b.name));
 }
+
+/**
+ * Validate the name of a file or folder.
+ *
+ * @param name The name to validate, it can be a string.
+ * @param type The type of the name, it can be "file" or "folder".
+ * @returns The error message if the name is invalid, otherwise null.
+ */
+export function validateName(name: string, type: "file" | "folder") {
+  const disallowedCharacters = ["/", "?", "*", ">", "<", "|", '"', "'", "`", "\\", ":"];
+
+  if (!name) return `${type} name cannot be empty`;
+  if (name.length > 255) return `${type} name too long`;
+  if (name.endsWith(".")) return `${type} name cannot end with a dot`;
+
+  for (const char of disallowedCharacters) {
+    if (name.includes(char)) return `${type} name cannot contain "${char}"`;
+  }
+
+  return null;
+}

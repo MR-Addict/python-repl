@@ -1,24 +1,27 @@
 import style from "./Nodetree.module.css";
+import RenamableNode from "./components/RenameInput/RenamableNode";
+
 import { sortNodes } from "@/lib/node/utils";
 import { useNodeContext } from "@/contexts/Node/Node";
 import { File, Folder, NodeType } from "@/lib/node/node";
 import { AiOutlineFileText, AiOutlineFolder, AiOutlineFolderOpen } from "react-icons/ai";
 
 function FileNode({ node, level }: { node: File; level?: number }) {
-  const { activeFile, setActiveFile } = useNodeContext();
+  const { activeFile, setActiveFile, updateRoot } = useNodeContext();
 
-  const handleClick = () => {
+  function handleClick() {
     setActiveFile(node.path);
-  };
+    updateRoot();
+  }
 
   return (
     <li data-type="file" data-level={level} className={style.node} style={{ "--level": level } as React.CSSProperties}>
-      <button type="button" onClick={handleClick} data-active={activeFile === node.path}>
+      <div role="button" tabIndex={0} onClick={handleClick} data-active={activeFile === node.path}>
         <span>
           <AiOutlineFileText />
         </span>
-        <span>{node.name}</span>
-      </button>
+        <RenamableNode node={node} />
+      </div>
     </li>
   );
 }
@@ -38,10 +41,10 @@ function FolderNode({ node, level }: { node: Folder; level?: number }) {
       className={style.node}
       style={{ "--level": level } as React.CSSProperties}
     >
-      <button type="button" onClick={handleExpand}>
+      <div role="button" tabIndex={0} onClick={handleExpand}>
         <span>{node.expand ? <AiOutlineFolderOpen /> : <AiOutlineFolder />}</span>
-        <span>{node.name}</span>
-      </button>
+        <RenamableNode node={node} />
+      </div>
 
       <ul data-expand={node.expand}>
         {sortNodes(node.children).map((child) => (

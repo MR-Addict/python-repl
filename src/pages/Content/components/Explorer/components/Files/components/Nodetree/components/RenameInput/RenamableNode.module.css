@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+.form {
+  @apply w-full relative;
+
+  & .input {
+    @apply w-full outline-none border border-blue-600 bg-neutral-600/20;
+  }
+
+  & .error {
+    @apply w-full absolute top-full left-0 text-sm px-0.5;
+    @apply outline-1 outline-red-600 text-neutral-300 bg-red-800;
+  }
+}
